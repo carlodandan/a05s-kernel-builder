@@ -1,0 +1,64 @@
+name: Kernel Builder
+
+on:
+  workflow_dispatch:
+    inputs:
+      KERNEL_PLATFORM:
+        description: 'Kernel Manifest'
+        required: true
+        default: 'https://github.com/carlodandan/build'
+      PLATFORM_BRANCH:
+        description: 'Kernel Manifest Branch'
+        required: true
+        default: 'platform'
+
+jobs:
+  build:
+    name: Build Kernel by ${{ github.actor }}
+    runs-on: ubuntu-20.04
+    if: github.event.repository.owner.id == github.event.sender.id
+    permissions:
+      contents: write
+    steps:
+    # This action checks-out your repository under $GITHUB_WORKSPACE, so your workflow can access it.
+    - name: Checkout
+      uses: actions/checkout@v4
+    # Install necessary packages for building android kernel
+    - name: Cleanup
+      uses: rokibhasansagar/slimhub_actions@main
+      
+    - name: Set Swap Space
+      uses: pierotofy/set-swap-space@master
+      with:
+        swap-size-gb: 32
+    # Install repo tool in case it was not yet installed
+
+    - name: Build Environment
+      run: |
+        sudo apt update -y
+        sudo apt install bison flex rsync bison device-tree-compiler bc -y
+        
+    - name: Install Repo Tool
+      run: |
+        git config --global color.ui false
+        if ! command -v repo &> /dev/null; then
+            echo "'repo' command not found. Installing..."
+            mkdir -p ~/bin  # Create bin directory if it doesn't exist
+            curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+            chmod a+x ~/bin/repo
+            sudo ln -sf ~/bin/repo /usr/bin/repo
+            echo "'repo' command installed successfully."
+        else
+            echo "'repo' command already exists."
+        fi
+    # Initial the kernel manifest then sync after
+    - name: Clone Kernel Platform
+      run: |
+        mkdir -p android; cd android
+        git clone --depth=1 ${{ inputs.KERNEL_PLATFORM }} -b ${{ inputs.PLATFORM_BRANCH }} ./build
+
+    # Starts the compiling process of android kernel
+    - name: Build Kernel
+      run: |
+        cd android
+        bash build_kernel_GKI.sh build/build.sh 2>&1 | tee build.log
