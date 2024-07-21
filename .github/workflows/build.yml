@@ -15,8 +15,7 @@ on:
 jobs:
   build:
     name: Build Kernel by ${{ github.actor }}
-    runs-on: ubuntu-20.04
-    if: github.event.repository.owner.id == github.event.sender.id
+    runs-on: ubuntu-22.04
     permissions:
       contents: write
     steps:
@@ -62,3 +61,21 @@ jobs:
       run: |
         cd android/build
         bash build_kernel_GKI.sh build/build.sh 2>&1 | tee build.log
+
+    - name: Upload Boot and Kernel
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          android/build/out/msm-kernel-m269-gki/gki_kernel/dist/Image
+          android/build/out/msm-kernel-m269-gki/gki_kernel/dist/Image.gz
+          android/build/out/msm-kernel-m269-gki/gki_kernel/dist/Image.lz4
+          android/build/out/msm-kernel-m269-gki/gki_kernel/dist/boot.img
+          android/build/out/msm-kernel-m269-gki/gki_kernel/dist/boot-gz.img
+          android/build/out/msm-kernel-m269-gki/gki_kernel/dist/boot-img.tar.gz
+          android/build/out/msm-kernel-m269-gki/gki_kernel/dist/boot-lz4.img
+        name: Unofficial TWRP for ${{ github.event.inputs.DEVICE_NAME }} // ${{ env.BUILD_DATE }}
+        tag_name: ${{ github.run_id }}
+        body: |
+          Build: ${{ github.event.inputs.MANIFEST_BRANCH }}
+          Device: [Device Tree/Branch](${{ github.event.inputs.DEVICE_TREE }}/tree/${{ github.event.inputs.DEVICE_TREE_BRANCH }})
+          Commit: Most recent [commit](${{ github.event.inputs.DEVICE_TREE }}/commit/${{ env.COMMIT_ID }}) during building.
