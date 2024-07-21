@@ -73,9 +73,7 @@ jobs:
           android/build/out/msm-kernel-m269-gki/gki_kernel/dist/boot-gz.img
           android/build/out/msm-kernel-m269-gki/gki_kernel/dist/boot-img.tar.gz
           android/build/out/msm-kernel-m269-gki/gki_kernel/dist/boot-lz4.img
-        name: Unofficial TWRP for ${{ github.event.inputs.DEVICE_NAME }} // ${{ env.BUILD_DATE }}
+        name: Generic Kernel Image 2.0 for Samsung Galaxy A057F (a05s)
         tag_name: ${{ github.run_id }}
         body: |
-          Build: ${{ github.event.inputs.MANIFEST_BRANCH }}
-          Device: [Device Tree/Branch](${{ github.event.inputs.DEVICE_TREE }}/tree/${{ github.event.inputs.DEVICE_TREE_BRANCH }})
-          Commit: Most recent [commit](${{ github.event.inputs.DEVICE_TREE }}/commit/${{ env.COMMIT_ID }}) during building.
+          # Kernel Build Release
