@@ -6,7 +6,7 @@ on:
       KERNEL_PLATFORM:
         description: 'Kernel Manifest'
         required: true
-        default: 'https://github.com/carlodandan/build'
+        default: 'https://github.com/carlodandan/platfprm_a05s'
       PLATFORM_BRANCH:
         description: 'Kernel Manifest Branch'
         required: true
