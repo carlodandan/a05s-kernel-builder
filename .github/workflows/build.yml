@@ -60,7 +60,7 @@ jobs:
     - name: Build Kernel
       run: |
         cd android/build
-        bash build_kernel_GKI.sh build/build.sh 2>&1 | tee build.txt
+        bash build_kernel_GKI.sh 2>&1 | tee build.txt
 
     - name: Upload Boot and Kernel
       uses: softprops/action-gh-release@v2
