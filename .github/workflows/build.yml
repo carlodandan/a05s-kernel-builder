@@ -50,16 +50,14 @@ jobs:
     # Initial the kernel manifest then sync after
     - name: Clone Kernel Platform
       run: |
-        mkdir -p android; cd android
-        git clone --depth=1 https://github.com/carlodandan/platform_a05s -b platform ./build
+        mkdir -p android/build; cd android/build
+        repo init --depth=1 -u https://github.com/carlodandan/android_kernel_samsung_a05s_manifest -b a05s
 
     # Starts the compiling process of android kernel
     - name: Build Kernel (With KernelSU)
       if: inputs.WITH_KERNELSU == true
       run: |
-        cd android/build
-        bash clone.sh
-        cd kernel_platform/common
+        cd android/build/kernel_platform/common
         curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -
         cd ../..
         bash build_kernel_GKI.sh 2>&1 | tee build.txt
@@ -70,7 +68,6 @@ jobs:
       if: inputs.WITH_KERNELSU == false
       run: |
         cd android/build
-        bash clone.sh
         bash build_kernel_GKI.sh 2>&1 | tee build.txt
         echo "KERNEL_VERSION=$(cat out/msm-kernel-m269-gki/gki_kernel/common/include/config/kernel.release)" >> $GITHUB_ENV
 
