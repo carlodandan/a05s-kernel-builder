@@ -3,14 +3,11 @@ name: Kernel Builder
 on:
   workflow_dispatch:
     inputs:
-      KERNEL_PLATFORM:
-        description: 'Kernel Manifest'
+      WITH_KERNELSU:
+        description: 'Build with KernelSU?'
         required: true
-        default: 'https://github.com/carlodandan/platform_a05s'
-      PLATFORM_BRANCH:
-        description: 'Kernel Manifest Branch'
-        required: true
-        default: 'platform'
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -54,13 +51,28 @@ jobs:
     - name: Clone Kernel Platform
       run: |
         mkdir -p android; cd android
-        git clone --depth=1 ${{ inputs.KERNEL_PLATFORM }} -b ${{ inputs.PLATFORM_BRANCH }} ./build
+        git clone --depth=1 https://github.com/carlodandan/platform_a05s -b platform ./build
 
     # Starts the compiling process of android kernel
-    - name: Build Kernel
+    - name: Build Kernel (With KernelSU)
+      if: inputs.WITH_KERNELSU == "true"
       run: |
         cd android/build
+        bash clone.sh
+        cd kernel_platform/common
+        curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -
+        cd ../..
         bash build_kernel_GKI.sh 2>&1 | tee build.txt
+        echo "KERNEL_VERSION=$(cat out/msm-kernel-m269-gki/gki_kernel/common/include/config/kernel.release)" >> $GITHUB_ENV
+
+    # Starts the compiling process of android kernel
+    - name: Build Kernel (Without KernelSU)
+      if: inputs.WITH_KERNELSU == "false"
+      run: |
+        cd android/build
+        bash clone.sh
+        bash build_kernel_GKI.sh 2>&1 | tee build.txt
+        echo "KERNEL_VERSION=$(cat out/msm-kernel-m269-gki/gki_kernel/common/include/config/kernel.release)" >> $GITHUB_ENV
 
     - name: Upload Boot and Kernel
       uses: softprops/action-gh-release@v2
@@ -77,4 +89,7 @@ jobs:
         name: Generic Kernel Image 2.0 for Samsung Galaxy A057F (a05s)
         tag_name: ${{ github.run_id }}
         body: |
-          # Kernel Build Release
+          # Kernel Build Release (GKI 2.0)
+          Device: A05S
+          Release: ${{ env.KERNEL_VERSION }}
+          KernelSU: ${{ inputs.WITH_KERNELSU }}
