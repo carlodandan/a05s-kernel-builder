@@ -62,7 +62,8 @@ jobs:
         cd ../..
         bash build_kernel_GKI.sh 2>&1 | tee build.txt
         echo "KERNEL_VERSION=$(cat out/msm-kernel-m269-gki/gki_kernel/common/include/config/kernel.release)" >> $GITHUB_ENV
-
+        echo "BUILD_DATE=$(TZ='Asia/Manila' date +%Y-%m-%d' '%H:%M)" >> $GITHUB_ENV
+        
     # Starts the compiling process of android kernel
     - name: Build Kernel (Without KernelSU)
       if: inputs.WITH_KERNELSU == false
@@ -70,6 +71,7 @@ jobs:
         cd android/build
         bash build_kernel_GKI.sh 2>&1 | tee build.txt
         echo "KERNEL_VERSION=$(cat out/msm-kernel-m269-gki/gki_kernel/common/include/config/kernel.release)" >> $GITHUB_ENV
+        echo "BUILD_DATE=$(TZ='Asia/Manila' date +%Y-%m-%d' '%H:%M)" >> $GITHUB_ENV
 
     - name: Upload Boot and Kernel
       uses: softprops/action-gh-release@v2
@@ -83,10 +85,12 @@ jobs:
           android/build/out/msm-kernel-m269-gki/gki_kernel/dist/boot-gz.img
           android/build/out/msm-kernel-m269-gki/gki_kernel/dist/boot-img.tar.gz
           android/build/out/msm-kernel-m269-gki/gki_kernel/dist/boot-lz4.img
-        name: Generic Kernel Image 2.0 for Samsung Galaxy A057F (a05s)
+        name: Kernel Build for Samsung Galaxy A057F (a05s)
         tag_name: ${{ github.run_id }}
         body: |
-          # Kernel Build Release (GKI 2.0)
-          Device: A05S
+          # Build Release
+          Device: A057F (a05s)
           Release: ${{ env.KERNEL_VERSION }}
           KernelSU: ${{ inputs.WITH_KERNELSU }}
+          Build Date: ${{ env.BUILD_DATE }}
+          Manifest: https://github.com/carlodandan/android_kernel_samsung_a05s_manifest/tree/a05s
