@@ -48,10 +48,11 @@ jobs:
             echo "'repo' command already exists."
         fi
     # Initial the kernel manifest then sync after
-    - name: Clone Kernel Platform
+    - name: Prepare Kernel Platform
       run: |
         mkdir -p android/build; cd android/build
         repo init --depth=1 -u https://github.com/carlodandan/android_kernel_samsung_a05s_manifest -b a05s
+        repo sync $(nproc --all) --force-sync
 
     # Starts the compiling process of android kernel
     - name: Build Kernel (With KernelSU)
