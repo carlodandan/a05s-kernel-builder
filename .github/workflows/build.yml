@@ -55,7 +55,7 @@ jobs:
 
     # Starts the compiling process of android kernel
     - name: Build Kernel (With KernelSU)
-      if: inputs.WITH_KERNELSU == "true"
+      if: inputs.WITH_KERNELSU == true
       run: |
         cd android/build
         bash clone.sh
@@ -67,7 +67,7 @@ jobs:
 
     # Starts the compiling process of android kernel
     - name: Build Kernel (Without KernelSU)
-      if: inputs.WITH_KERNELSU == "false"
+      if: inputs.WITH_KERNELSU == false
       run: |
         cd android/build
         bash clone.sh
